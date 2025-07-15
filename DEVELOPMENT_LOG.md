@@ -1,22 +1,53 @@
-# PDFカラフル変換ツール - 開発記録
+# PDFカラフル変換ツール - 開発記録 & 次回起動ガイド
 
-## プロジェクト概要
+## 🎯 プロジェクト概要
 モノクロのパンフレットを色鮮やかで高級感のある仕上がりに自動変換するWebアプリケーション
 
-## 技術スタック
+## 🚀 次回起動時のクイックスタート
+
+### 即座に動作確認する手順
+```bash
+cd "C:\Users\HSS_DG422\Desktop\Claude code\sachiko_20250715"
+py -m streamlit run app.py
+```
+→ http://localhost:8501 でアクセス
+
+### ファイル確認
+```bash
+git status
+git log --oneline -5
+```
+
+### 共有サーバー起動
+```bash
+# Windows用
+start_server.bat
+
+# 手動起動の場合
+streamlit run app.py --server.address 0.0.0.0 --server.port 8501
+```
+
+## 🛠 技術スタック
 - **フレームワーク**: Streamlit
 - **PDF処理**: PyMuPDF (fitz) - Popplerの依存関係を回避
-- **画像処理**: Pillow, OpenCV, NumPy
+- **画像処理**: Pillow, OpenCV, NumPy  
 - **UI**: Streamlit Web インターフェース
 - **Python バージョン**: 3.13.5
+- **Git リポジトリ**: https://github.com/katou-maker-main/sachiko_20250715
 
-## ファイル構成
+## 📁 ファイル構成
 ```
 C:\Users\HSS_DG422\Desktop\Claude code\sachiko_20250715\
-├── app.py              # メインアプリケーション
-├── requirements.txt    # 依存関係
-├── README.md          # 使用方法
-└── DEVELOPMENT_LOG.md # この開発記録
+├── app.py                    # メインアプリケーション ⭐
+├── requirements.txt          # 依存関係
+├── README.md                # 使用方法
+├── DEVELOPMENT_LOG.md       # この開発記録
+├── SETUP_GUIDE.md          # チーム共有用セットアップガイド
+├── start_server.bat        # Windows用一発起動スクリプト
+├── index.html              # Netlify用静的サイト
+├── Procfile               # Heroku用設定
+├── setup.sh               # Heroku用セットアップ
+└── .gitignore             # Git除外設定
 ```
 
 ## 機能仕様
@@ -139,6 +170,106 @@ py -m streamlit run app.py
 - PyMuPDF使用により外部依存関係を最小化
 - グレー値ベースの単純なアルゴリズムで安定性を重視
 
+## 🔄 デプロイ状況
+
+### Git リポジトリ
+- **URL**: https://github.com/katou-maker-main/sachiko_20250715
+- **ブランチ**: main
+- **最新コミット**: デプロイ用設定ファイル追加済み
+
+### デプロイ試行結果
+1. **Streamlit Cloud**: ❌ リポジトリ認識エラー
+   - 問題: Repository/Branch/Main file path が認識されない
+   - 対処法: Public設定確認、権限再設定、代替Hugging Face Spacesを検討
+
+2. **Netlify**: ⭐ index.html作成済み（静的サイト用）
+   - プロジェクト紹介ページとして利用可能
+
+3. **Heroku**: ⭐ Procfile, setup.sh作成済み
+   - 本格運用時の選択肢として準備完了
+
+### 次回対応すべき事項
+- [ ] Streamlit Cloud の認識問題解決
+- [ ] Hugging Face Spaces での代替デプロイ
+- [ ] Python 3.13 → 3.10 への requirements.txt 調整（互換性向上）
+
+## 🎨 UI/UX改善履歴
+
+### ユーザー要求の変遷と対応
+1. **初期要求**: 「一発でAIが自動でやってくれるアプリ」
+   → API連携なしのローカル完結型に方針変更
+
+2. **配色要求の変遷**:
+   - 当初: 複雑なAI色付け → シンプルなグレー値ベース
+   - 緑系色の完全排除 → 水色・紺色・グレーの3色統一
+   - 写真のリアル色 → グレー値による一律処理
+
+3. **機能追加要求**:
+   - 一括ダウンロード機能追加（ZIPファイル対応）
+   - チーム共有機能強化（start_server.bat作成）
+
+### 最終配色仕様
+```python
+# 白（240+）       → そのまま白を保持
+# 薄いグレー（190-240） → 薄い水色 (230, 245, 255)
+# 中間グレー（140-189） → 中間水色 (173, 216, 230)
+# 中暗グレー（90-139）  → 暗い水色 (100, 149, 180)
+# 暗いグレー（30-89）   → 紺色 (25, 25, 112)
+# 黒（30未満）         → そのまま黒を保持
+```
+
+## 🚨 重要な技術的解決事項
+
+### PDF処理ライブラリ変更
+**問題**: `pdf2image + Poppler` 依存関係エラー
+```
+PDF変換エラー: Unable to get page count. Is poppler installed and in PATH?
+```
+**解決**: `PyMuPDF (fitz)` に変更
+```python
+import fitz  # PyMuPDF
+pdf_document = fitz.open(stream=pdf_bytes, filetype="pdf")
+```
+
+### Python環境問題
+**問題**: `pip not found`、モジュール不足エラー
+**解決手順**:
+```bash
+py -m ensurepip --upgrade
+py -m pip install パッケージ名
+```
+
+### 配色アルゴリズム簡略化
+**問題**: 複雑な画像解析による不安定な結果
+**解決**: グレー値のみによる閾値判定に変更
+- 矢印検出、グラフ検出などの複雑な処理を削除
+- 安定性と予測可能性を重視
+
+## 🎯 次回セッション時の最優先タスク
+
+### 1. 動作確認（最優先）
+```bash
+cd "C:\Users\HSS_DG422\Desktop\Claude code\sachiko_20250715"
+py -m streamlit run app.py
+```
+
+### 2. デプロイ問題解決
+- Streamlit Cloud認識問題の調査
+- Hugging Face Spaces試行
+- requirements.txt のPython 3.10対応調整
+
+### 3. 機能改善（時間があれば）
+- バッチ処理機能
+- 設定保存機能
+- プレビュー機能
+
+## 📞 ユーザーサポート情報
+- **主要ユーザー**: 社内チーム（パンフレット制作）
+- **使用頻度**: 定期的（月数回想定）
+- **技術レベル**: 初心者〜中級者
+- **重要な要求**: 簡単操作、一括処理、美しい仕上がり
+
 ## 最終状態
 ユーザーの要求に応じて、複雑な画像解析から単純なグレー値判定に変更。
 安定性と予測可能性を重視した実装となっている。
+GitHubリポジトリ準備完了、デプロイ待ちの状態。

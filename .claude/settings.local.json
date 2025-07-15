@@ -5,7 +5,9 @@
       "Bash(py --version)",
       "Bash(py -m pip install:*)",
       "Bash(py:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }
